@@ -1,4 +1,4 @@
-package pojos;
+package htl.kaindorf.StadtLandFluss.pojos;
 
 
 import lombok.Data;

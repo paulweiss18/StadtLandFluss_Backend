@@ -12,12 +12,16 @@
                 <p id="title1">Stadt - Land - Fluss</p>
                 <p id="title2">Online</p>
             </div>
-            <div class="container">
-                <p class="btnText">Create Lobby</p>
-            </div>
-            <div class="container">
-                <p class="btnText">Join via Code</p>
-            </div>
+            <form method="POST" action="/createLobby">
+                <div class="container">
+                    <p class="btnText">Create Lobby</p>
+                </div>
+            </form>
+            <form method="post" action="/joinLobby">
+                <div class="container">
+                    <p class="btnText">Join via Code</p>
+                </div>
+            </form>
         </div>
     </body>
 </html>
