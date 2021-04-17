@@ -9,4 +9,6 @@ import java.util.List;
 public class Lobby {
     private String lobbyCode;
     private List<Player> players;
+    private LobbyStatus status;
+    private Player lobbyLeaderPlayer;
 }
