@@ -1,0 +1,25 @@
+html{
+    background-image: url("Backgroundx4.png");
+}
+.main{
+    margin: auto;
+    padding: 120px;
+    text-align: center;
+    width: 50%;
+    height: 100%;
+}
+.container{
+    margin: 5% auto 5% auto;
+    text-align: center;
+    font-family: 'Chango', serif;
+    font-style: normal;
+    font-weight: normal;
+    background: #FFAF36;
+    border: 7px solid #000000;
+    border-radius: 45px;
+    cursor: pointer;
+}
+.container:hover{
+    background-color: gray;
+    transition: 0.5s;
+}

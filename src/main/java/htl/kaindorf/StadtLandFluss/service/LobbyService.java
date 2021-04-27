@@ -1,5 +1,7 @@
 package htl.kaindorf.StadtLandFluss.service;
 
+import htl.kaindorf.StadtLandFluss.exceptions.GameAlreadyStartedExcpetion;
+import htl.kaindorf.StadtLandFluss.exceptions.LobbyNotFoundException;
 import htl.kaindorf.StadtLandFluss.pojos.Lobby;
 import htl.kaindorf.StadtLandFluss.pojos.LobbyStatus;
 import htl.kaindorf.StadtLandFluss.pojos.Player;
@@ -25,13 +27,20 @@ public class LobbyService {
         return lobby;
     }
 
+
     //if a player wants to join a already existing Lobby via the LobbyCode
-    public Lobby joinLobby(Player player, String lobbyCode){
-        if(LobbyStorage.getInstance().getLobbies().get(lobbyCode).getStatus().equals(LobbyStatus.CREATED)){
+    // + Excpetion Handling
+    public Lobby joinLobby(Player player, String lobbyCode) throws LobbyNotFoundException, GameAlreadyStartedExcpetion{
+        if(LobbyStorage.getInstance().getLobbies().get(lobbyCode) == null) {
+            throw new LobbyNotFoundException("No lobby with this code");
+        }
+        else if(!(LobbyStorage.getInstance().getLobbies().get(lobbyCode).getStatus().equals(LobbyStatus.CREATED))){
+            throw new GameAlreadyStartedExcpetion("Game with this GameID has already started");
+        }
+        else{
             LobbyStorage.getInstance().getLobbies().get(lobbyCode).getPlayers().add(player);
             return LobbyStorage.getInstance().getLobbies().get(lobbyCode);
         }
-        return null;
     }
 
 }
