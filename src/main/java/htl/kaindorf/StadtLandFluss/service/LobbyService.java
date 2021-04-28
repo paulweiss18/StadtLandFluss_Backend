@@ -1,7 +1,6 @@
 package htl.kaindorf.StadtLandFluss.service;
 
-import htl.kaindorf.StadtLandFluss.exceptions.GameAlreadyStartedExcpetion;
-import htl.kaindorf.StadtLandFluss.exceptions.LobbyNotFoundException;
+import htl.kaindorf.StadtLandFluss.exception.LobbyJoinException;
 import htl.kaindorf.StadtLandFluss.pojos.Lobby;
 import htl.kaindorf.StadtLandFluss.pojos.LobbyStatus;
 import htl.kaindorf.StadtLandFluss.pojos.Player;
@@ -14,7 +13,6 @@ import java.util.UUID;
 
 @Service
 public class LobbyService {
-
 
     //if a player creates a new Lobby
     public Lobby createLobby(Player player){
@@ -30,12 +28,12 @@ public class LobbyService {
 
     //if a player wants to join a already existing Lobby via the LobbyCode
     // + Excpetion Handling
-    public Lobby joinLobby(Player player, String lobbyCode) throws LobbyNotFoundException, GameAlreadyStartedExcpetion{
+    public Lobby joinLobby(Player player, String lobbyCode) throws LobbyJoinException {
         if(LobbyStorage.getInstance().getLobbies().get(lobbyCode) == null) {
-            throw new LobbyNotFoundException("No lobby with this code");
+            throw new LobbyJoinException("No lobby with this code");
         }
         else if(!(LobbyStorage.getInstance().getLobbies().get(lobbyCode).getStatus().equals(LobbyStatus.CREATED))){
-            throw new GameAlreadyStartedExcpetion("Game with this GameID has already started");
+            throw new LobbyJoinException("Game with this GameID has already started or ended");
         }
         else{
             LobbyStorage.getInstance().getLobbies().get(lobbyCode).getPlayers().add(player);
