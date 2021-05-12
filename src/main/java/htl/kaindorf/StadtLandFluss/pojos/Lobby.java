@@ -3,7 +3,6 @@ package htl.kaindorf.StadtLandFluss.pojos;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -14,4 +13,5 @@ public class Lobby {
     private List<Player> players;
     private LobbyStatus status;
     private Player lobbyLeaderPlayer;
+    private GameConfiguration gameConfiguration;
 }
