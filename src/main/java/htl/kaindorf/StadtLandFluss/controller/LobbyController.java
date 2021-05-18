@@ -17,12 +17,13 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/lobby")
+@CrossOrigin(origins = "*",methods = {RequestMethod.DELETE, RequestMethod.HEAD, RequestMethod.GET, RequestMethod.OPTIONS, RequestMethod.POST, RequestMethod.PUT})
 public class LobbyController {
 
     private LobbyService lobbyService = new LobbyService();
 
     @PostMapping("/createLobby")
-    public Lobby createdLobby(@RequestBody String name){
+    public Lobby createLobby(@RequestBody String name){
         System.out.println("Lobby created");
         return lobbyService.createLobby(new Player(name, UUID.randomUUID().toString()));
     }
