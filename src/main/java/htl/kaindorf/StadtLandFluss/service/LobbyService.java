@@ -6,6 +6,7 @@ import htl.kaindorf.StadtLandFluss.pojos.Lobby;
 import htl.kaindorf.StadtLandFluss.pojos.LobbyStatus;
 import htl.kaindorf.StadtLandFluss.pojos.Player;
 import htl.kaindorf.StadtLandFluss.storage.LobbyStorage;
+import htl.kaindorf.StadtLandFluss.websockets.SocketHandler;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -13,15 +14,16 @@ import java.util.*;
 @Service
 public class LobbyService {
 
-    private List<String> defaultCategories = new ArrayList<>();
+    private List<String> defaultCategories = Arrays.asList((new String[]{"City","Country","River","Mountain"}));
+    private SocketHandler socketHandler = new SocketHandler();
 
-    public LobbyService(){
-        //Set Default categories
-        defaultCategories.add("City");
-        defaultCategories.add("Country");
-        defaultCategories.add("River");
-        defaultCategories.add("Mountain");
+    //If a new Player is created
+    public Player createPlayer(String name){
+        Player player = new Player(UUID.randomUUID().toString(), name, null);
+        LobbyStorage.getInstance().getPlayers().add(player);
+        return player;
     }
+
 
     //if a player creates a new Lobby
     public Lobby createLobby(Player player){
@@ -30,7 +32,6 @@ public class LobbyService {
 
         //Set Gameplay and default settings
         GameConfiguration defaultGameplay = new GameConfiguration(5, defaultCategories, new ArrayList<>());
-
 
         Lobby lobby = new Lobby(UUID.randomUUID().toString(), players, LobbyStatus.CREATED, player, defaultGameplay);
 
@@ -50,9 +51,50 @@ public class LobbyService {
             throw new LobbyJoinException("Game with this GameID has already started or ended");
         }
         else{
-            LobbyStorage.getInstance().getLobbies().get(lobbyCode).getPlayers().add(player);
+
+            Lobby currentLobby = LobbyStorage.getInstance().getLobbies().get(lobbyCode);
+            currentLobby.getPlayers().add(player);
+
+            socketHandler.updateLobbyAfterUserJoined(currentLobby.getPlayers());
+
             return LobbyStorage.getInstance().getLobbies().get(lobbyCode);
         }
     }
+
+    public Lobby configureGameSettings(String userId, String lobbyCode, int numberOfRounds, List<String> categories, List<String> excludedLetters){
+
+        Lobby lobby = LobbyStorage.getInstance().getLobbies().get(lobbyCode);
+        if(lobby.getLobbyLeaderPlayer().getUserid().equals(userId)){
+
+            lobby.getGameConfiguration().setNumberOfRounds(numberOfRounds);
+            lobby.getGameConfiguration().setCategories(categories);
+            lobby.getGameConfiguration().setExcludedLetters(excludedLetters);
+
+            return lobby;
+        }else{
+            return null;
+        }
+    }
+
+
+
+    public boolean startGame(String userId, String lobbyCode){
+        Lobby lobby = LobbyStorage.getInstance().getLobbies().get(lobbyCode);
+
+        if(lobby.getLobbyLeaderPlayer().getUserid().equals(userId) && lobby.getStatus().equals(LobbyStatus.CREATED) && lobby.getPlayers().size()>1){
+
+            //Start Game
+            return true;
+
+
+        }else{
+            //Cannot start Game
+            return false;
+        }
+    }
+
+
+
+
 
 }

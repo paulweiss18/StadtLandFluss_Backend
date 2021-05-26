@@ -7,7 +7,10 @@ import htl.kaindorf.StadtLandFluss.pojos.Lobby;
 import htl.kaindorf.StadtLandFluss.pojos.Player;
 import htl.kaindorf.StadtLandFluss.service.LobbyService;
 import htl.kaindorf.StadtLandFluss.storage.LobbyStorage;
+import htl.kaindorf.StadtLandFluss.websockets.SocketHandler;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.socket.sockjs.client.SockJsClient;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -17,47 +20,97 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/lobby")
+@CrossOrigin(origins = "*",methods = {RequestMethod.DELETE, RequestMethod.HEAD, RequestMethod.GET, RequestMethod.OPTIONS, RequestMethod.POST, RequestMethod.PUT})
 public class LobbyController {
 
     private LobbyService lobbyService = new LobbyService();
 
-    @PostMapping("/createLobby")
-    public Lobby createdLobby(@RequestBody String name){
-        System.out.println("Lobby created");
-        return lobbyService.createLobby(new Player(name, UUID.randomUUID().toString()));
+    @PostMapping("/createPlayer")
+    public ResponseEntity createPlayer(@RequestBody String name) {
+        try {
+            Map<String, String> valueMap = new ObjectMapper().readValue(name, LinkedHashMap.class);
+
+            return ResponseEntity.ok().body(lobbyService.createPlayer(valueMap.get("name")));
+
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("An Error occurred - cannot create User");
+        }
+
+
     }
 
+    @PostMapping("/createLobby")
+    public ResponseEntity createdLobby(@RequestBody String playerId){
+        try {
+            Map<String, String> valueMap = new ObjectMapper().readValue(playerId, LinkedHashMap.class);
+
+            return ResponseEntity.ok().body(lobbyService.createLobby(LobbyStorage.getInstance().getPlayerObjById(valueMap.get("playerId"))));
+
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("An Error occurred - cannot create a Lobby");
+        }
+    }
+
+
     @PostMapping("/joinLobby")
-    public Lobby joinLobby(@RequestBody String joinRequest) throws LobbyJoinException {
+    public ResponseEntity joinLobby(@RequestBody String joinRequest){
         try{
             Map<String, String> valueMap = new ObjectMapper().readValue(joinRequest, LinkedHashMap.class);
-            return lobbyService.joinLobby(new Player(valueMap.get("name"), UUID.randomUUID().toString()), valueMap.get("code"));
+
+            Lobby lobby = lobbyService.joinLobby(LobbyStorage.getInstance().getPlayerObjById(valueMap.get("playerId")), valueMap.get("lobbyCode"));
+
+            return ResponseEntity.ok().body(lobby);
 
         }catch(JsonProcessingException ex){
-            System.out.println("invalid");
-            return null;
+            return ResponseEntity.badRequest().body("An Error occurred - cannot read values");
+        }catch (LobbyJoinException ex){
+            return ResponseEntity.badRequest().body(ex.toString());
         }
     }
 
 
     @PostMapping("/setConfiguration")
-    public Lobby changeGameSettings(@RequestBody String configuration){
-
-        Map<String, String> valueMap = null;
+    public ResponseEntity changeGameSettings(@RequestBody String configuration){
         try {
-            valueMap = new ObjectMapper().readValue(configuration, LinkedHashMap.class);
+            Map<String, String> valueMap = new ObjectMapper().readValue(configuration, LinkedHashMap.class);
+            Lobby lobby = lobbyService.configureGameSettings(valueMap.get("playerId"),
+                                                             valueMap.get("lobbyCode"),
+                                                             Integer.parseInt(valueMap.get("numberOfRounds")),
+                                                             Arrays.asList(valueMap.get("categories").split(";")),
+                                                             Arrays.asList(valueMap.get("excludedLetters").split(";")));
+            if(lobby != null){
+                return ResponseEntity.ok().body(lobby);
+            }else{
+                return ResponseEntity.badRequest().body("Invalid User - only Lobby Leader");
+            }
 
-            LobbyStorage.getInstance().getLobbies().get(valueMap.get("lobbyCode")).getGameConfiguration().setNumberOfRounds(Integer.parseInt(valueMap.get("numberOfRounds")));
-            LobbyStorage.getInstance().getLobbies().get(valueMap.get("lobbyCode")).getGameConfiguration().setCategories(Arrays.asList(valueMap.get("categories").split(";")));
-            LobbyStorage.getInstance().getLobbies().get(valueMap.get("lobbyCode")).getGameConfiguration().setExcludedLetters(Arrays.asList(valueMap.get("excludedLetters").split(";")));
 
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            return ResponseEntity.badRequest().body("An Error occurred - cannot apply changes");
         } catch (NullPointerException e){
-            System.out.println("invalid");
-            return null;
+            return ResponseEntity.badRequest().body("An Error occurred - cannot apply changes");
         }
-        return  LobbyStorage.getInstance().getLobbies().get(valueMap.get("lobbyCode"));
+
     }
 
+    @PostMapping("/startGame")
+    public ResponseEntity startGame(@RequestBody String gameData){
+        try {
+            Map<String, String> valueMap = new ObjectMapper().readValue(gameData, LinkedHashMap.class);
+            if(lobbyService.startGame(valueMap.get("playerId"), valueMap.get("lobbyCode"))){
+                return ResponseEntity.ok().body(true);
+            }else{
+                return ResponseEntity.badRequest().body(false);
+            }
+
+
+        } catch (JsonProcessingException e) {
+            return ResponseEntity.badRequest().body("False GameData");
+        }
+
+
+
+    }
 }
