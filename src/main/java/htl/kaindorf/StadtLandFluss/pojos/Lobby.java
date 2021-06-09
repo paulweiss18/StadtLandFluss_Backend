@@ -1,6 +1,7 @@
 package htl.kaindorf.StadtLandFluss.pojos;
 
 
+import htl.kaindorf.StadtLandFluss.logic.GamePlay;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -14,4 +15,5 @@ public class Lobby {
     private LobbyStatus status;
     private Player lobbyLeaderPlayer;
     private GameConfiguration gameConfiguration;
+    private GamePlay gamePlay;
 }

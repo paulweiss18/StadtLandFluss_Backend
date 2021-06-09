@@ -40,6 +40,19 @@ public class LobbyController {
 
     }
 
+    @PostMapping("/getLobby")
+    public ResponseEntity getLobbyWithCode(@RequestBody String code){
+
+        try {
+            Map<String, String> valueMap = new ObjectMapper().readValue(code, LinkedHashMap.class);
+            return ResponseEntity.ok(lobbyService.getLobbyByCode(valueMap.get("code")));
+
+        } catch (JsonProcessingException e) {
+            return ResponseEntity.badRequest().body("An Error occurred - cannot get Lobby");
+        }
+
+    }
+
     @PostMapping("/createLobby")
     public ResponseEntity createdLobby(@RequestBody String playerId){
         try {
@@ -109,8 +122,6 @@ public class LobbyController {
         } catch (JsonProcessingException e) {
             return ResponseEntity.badRequest().body("False GameData");
         }
-
-
 
     }
 }

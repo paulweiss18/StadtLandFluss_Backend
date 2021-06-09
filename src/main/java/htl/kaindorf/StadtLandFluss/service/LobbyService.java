@@ -1,10 +1,8 @@
 package htl.kaindorf.StadtLandFluss.service;
 
 import htl.kaindorf.StadtLandFluss.exception.LobbyJoinException;
-import htl.kaindorf.StadtLandFluss.pojos.GameConfiguration;
-import htl.kaindorf.StadtLandFluss.pojos.Lobby;
-import htl.kaindorf.StadtLandFluss.pojos.LobbyStatus;
-import htl.kaindorf.StadtLandFluss.pojos.Player;
+import htl.kaindorf.StadtLandFluss.logic.GamePlay;
+import htl.kaindorf.StadtLandFluss.pojos.*;
 import htl.kaindorf.StadtLandFluss.storage.LobbyStorage;
 import htl.kaindorf.StadtLandFluss.websockets.SocketHandler;
 import org.springframework.stereotype.Service;
@@ -24,6 +22,10 @@ public class LobbyService {
         return player;
     }
 
+    public Lobby getLobbyByCode(String lobbyCode){
+        return LobbyStorage.getInstance().getLobbies().get(lobbyCode);
+    }
+
 
     //if a player creates a new Lobby
     public Lobby createLobby(Player player){
@@ -31,9 +33,9 @@ public class LobbyService {
         players.add(player);
 
         //Set Gameplay and default settings
-        GameConfiguration defaultGameplay = new GameConfiguration(5, defaultCategories, new ArrayList<>());
+        GameConfiguration defaultConfiguration = new GameConfiguration(5, defaultCategories, new ArrayList<>());
 
-        Lobby lobby = new Lobby(UUID.randomUUID().toString(), players, LobbyStatus.CREATED, player, defaultGameplay);
+        Lobby lobby = new Lobby(UUID.randomUUID().toString(), players, LobbyStatus.CREATED, player, defaultConfiguration, null);
 
         //store Lobby in Storage
         LobbyStorage.getInstance().setLobby(lobby);
@@ -64,7 +66,10 @@ public class LobbyService {
     public Lobby configureGameSettings(String userId, String lobbyCode, int numberOfRounds, List<String> categories, List<String> excludedLetters){
 
         Lobby lobby = LobbyStorage.getInstance().getLobbies().get(lobbyCode);
-        if(lobby.getLobbyLeaderPlayer().getUserid().equals(userId)){
+        System.out.println(lobby);
+        System.out.println(userId);
+
+        if(lobby.getLobbyLeaderPlayer().getUserid().equals(userId) && lobby.getStatus().equals(LobbyStatus.CREATED)){
 
             lobby.getGameConfiguration().setNumberOfRounds(numberOfRounds);
             lobby.getGameConfiguration().setCategories(categories);
@@ -83,11 +88,12 @@ public class LobbyService {
 
         if(lobby.getLobbyLeaderPlayer().getUserid().equals(userId) && lobby.getStatus().equals(LobbyStatus.CREATED) && lobby.getPlayers().size()>1){
 
-            //Start Game
+            lobby.setGamePlay(new GamePlay(lobby));
+            lobby.setStatus(LobbyStatus.IN_GAME);
+
             return true;
-
-
         }else{
+
             //Cannot start Game
             return false;
         }
