@@ -1,44 +1,82 @@
 package htl.kaindorf.StadtLandFluss.websockets;
 
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import htl.kaindorf.StadtLandFluss.pojos.Lobby;
 import htl.kaindorf.StadtLandFluss.pojos.Player;
+import htl.kaindorf.StadtLandFluss.pojos.Round;
+import htl.kaindorf.StadtLandFluss.storage.LobbyStorage;
+import htl.kaindorf.StadtLandFluss.websockets.message.Message;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 
 @Component
 public class SocketHandler extends TextWebSocketHandler {
 
-    List sessions = new CopyOnWriteArrayList<>();
+    private LobbyStorage lobbyStorage = LobbyStorage.getInstance();
+    ObjectMapper mapper = new ObjectMapper();
 
-
-    //message should contain user-id
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage message)
             throws InterruptedException, IOException {
 
-        System.out.println("hello handle message");
-        System.out.println(message.getPayload());
+        Map<String, String> valueMap = new ObjectMapper().readValue(message.getPayload(), LinkedHashMap.class);
+
+        if(valueMap.get("type").equals("init")){
+            String playerId = valueMap.get("playerId");
+            if(lobbyStorage.getPlayerObjById(playerId).getSession() != null){
+                lobbyStorage.getPlayerObjById(playerId).getSession().close();
+                lobbyStorage.getPlayerObjById(playerId).setSession(null);
+            }
+            lobbyStorage.getPlayerObjById(playerId).setSession(session);
+
+        }else if(valueMap.get("type").equals("connection_closed")){
+
+            String playerId = valueMap.get("playerId");
+
+            Lobby lobby = lobbyStorage.getLobbyFromPlayer(playerId);
+            lobbyStorage.removePlayerFromLobby(playerId);
+
+            if(lobby.getLobbyCode() != null){
+                updateLobby(lobby.getLobbyCode());
+            }
+
+            session.close();
+        }
+
     }
 
-    @Override
-    public void afterConnectionEstablished(WebSocketSession session){
-        sessions.add(session);
-        System.out.println("connected");
-    }
-
-    public void updateLobbyAfterUserJoined(List<Player> players){
-        for(Player player : players){
-            //player.getSession().sendMessage();
+    public void updateLobby(String lobbyCode){
+        for(Player player : lobbyStorage.getLobbies().get(lobbyCode).getPlayers()){
+            try {
+                if(player.getSession() != null){
+                    player.getSession().sendMessage(new TextMessage(mapper.writeValueAsString(new Message("updateLobby", lobbyStorage.getLobbies().get(lobbyCode)))));
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }catch (NullPointerException e){
+                e.printStackTrace();
+            }
         }
     }
 
-
-
-
+    public void startGame(String lobbyCode, Round round){
+        for(Player player : lobbyStorage.getLobbies().get(lobbyCode).getPlayers()){
+            try {
+                System.out.println("start game Message");
+                player.getSession().sendMessage(new TextMessage(mapper.writeValueAsString(new Message("startGame", round))));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }catch (NullPointerException e){
+                e.printStackTrace();
+            }
+        }
     }
+
+}

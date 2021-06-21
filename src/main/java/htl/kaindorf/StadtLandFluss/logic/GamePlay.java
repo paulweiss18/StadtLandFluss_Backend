@@ -3,6 +3,7 @@ package htl.kaindorf.StadtLandFluss.logic;
 import htl.kaindorf.StadtLandFluss.pojos.GameConfiguration;
 import htl.kaindorf.StadtLandFluss.pojos.Lobby;
 import htl.kaindorf.StadtLandFluss.pojos.Round;
+import htl.kaindorf.StadtLandFluss.websockets.SocketHandler;
 import lombok.Data;
 
 import java.util.*;
@@ -15,10 +16,14 @@ public class GamePlay {
     private Lobby lobby;
     List<String> letters = new ArrayList<>();
     Random random = new Random();
+    SocketHandler socketHandler;
 
 
-    public GamePlay(Lobby lobby){
+
+    public GamePlay(Lobby lobby, SocketHandler socketHandler){
         this.lobby = lobby;
+        this.socketHandler = socketHandler;
+
         currentRounds = -1;
 
         for(int i = 65; i <= 90; i++){
@@ -27,12 +32,12 @@ public class GamePlay {
                 letters.add(c+"");
             }
         }
-
         newRound();
     }
 
 
     public void newRound(){
+        System.out.println("new round");
         currentRounds++;
 
         int index = random.nextInt(letters.size());
@@ -40,13 +45,10 @@ public class GamePlay {
 
         Round round = new Round(letters.get(index), null);
 
-
-
         //WebSocket start new Round
-
-
-
+        socketHandler.startGame(lobby.getLobbyCode(), round);
     }
+
 
 
 

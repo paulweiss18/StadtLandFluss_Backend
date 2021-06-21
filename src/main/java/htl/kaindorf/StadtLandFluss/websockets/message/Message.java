@@ -1,22 +1,22 @@
 package htl.kaindorf.StadtLandFluss.websockets.message;
 
+import htl.kaindorf.StadtLandFluss.pojos.Lobby;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import org.springframework.web.socket.WebSocketMessage;
 
-public class Message implements WebSocketMessage {
+@Data
+@AllArgsConstructor
+public class Message{
+    private String type;
+    private Object data;
+
 
     @Override
-    public Object getPayload() {
-        return null;
+    public String toString() {
+        return "Message{" +
+                "type='" + type + '\'' +
+                ", data=" + data +
+                '}';
     }
-
-    @Override
-    public int getPayloadLength() {
-        return 0;
-    }
-
-    @Override
-    public boolean isLast() {
-        return false;
-    }
-
 }

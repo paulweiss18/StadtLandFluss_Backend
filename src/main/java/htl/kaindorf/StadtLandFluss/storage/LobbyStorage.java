@@ -47,4 +47,32 @@ public class LobbyStorage {
         return null;
     }
 
+    public void removePlayerFromLobby(String playerId){
+        Lobby lobby = null;
+
+        for(String lobbyCode : lobbies.keySet()){
+            for(Player player : lobbies.get(lobbyCode).getPlayers()){
+                if(player.getUserid().equals(playerId)){
+                    lobby = lobbies.get(lobbyCode);
+                }
+            }
+        }
+
+        if(lobby != null){
+            lobby.getPlayers().removeIf(p -> p.getUserid().equals(playerId));
+        }
+    }
+
+    public Lobby getLobbyFromPlayer(String playerId){
+        for(String lobbyCode : lobbies.keySet()){
+            for(Player player : lobbies.get(lobbyCode).getPlayers()){
+                if(player.getUserid().equals(playerId)){
+                    return lobbies.get(lobbyCode);
+                }
+            }
+        }
+        return null;
+    }
+
+
 }

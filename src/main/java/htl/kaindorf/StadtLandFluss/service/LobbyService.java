@@ -22,6 +22,7 @@ public class LobbyService {
         return player;
     }
 
+
     public Lobby getLobbyByCode(String lobbyCode){
         return LobbyStorage.getInstance().getLobbies().get(lobbyCode);
     }
@@ -57,7 +58,7 @@ public class LobbyService {
             Lobby currentLobby = LobbyStorage.getInstance().getLobbies().get(lobbyCode);
             currentLobby.getPlayers().add(player);
 
-            socketHandler.updateLobbyAfterUserJoined(currentLobby.getPlayers());
+            socketHandler.updateLobby(lobbyCode);
 
             return LobbyStorage.getInstance().getLobbies().get(lobbyCode);
         }
@@ -66,14 +67,14 @@ public class LobbyService {
     public Lobby configureGameSettings(String userId, String lobbyCode, int numberOfRounds, List<String> categories, List<String> excludedLetters){
 
         Lobby lobby = LobbyStorage.getInstance().getLobbies().get(lobbyCode);
-        System.out.println(lobby);
-        System.out.println(userId);
 
         if(lobby.getLobbyLeaderPlayer().getUserid().equals(userId) && lobby.getStatus().equals(LobbyStatus.CREATED)){
 
             lobby.getGameConfiguration().setNumberOfRounds(numberOfRounds);
             lobby.getGameConfiguration().setCategories(categories);
             lobby.getGameConfiguration().setExcludedLetters(excludedLetters);
+
+            socketHandler.updateLobby(lobbyCode);
 
             return lobby;
         }else{
@@ -88,12 +89,11 @@ public class LobbyService {
 
         if(lobby.getLobbyLeaderPlayer().getUserid().equals(userId) && lobby.getStatus().equals(LobbyStatus.CREATED) && lobby.getPlayers().size()>1){
 
-            lobby.setGamePlay(new GamePlay(lobby));
+            lobby.setGamePlay(new GamePlay(lobby, this.socketHandler));
             lobby.setStatus(LobbyStatus.IN_GAME);
 
             return true;
         }else{
-
             //Cannot start Game
             return false;
         }

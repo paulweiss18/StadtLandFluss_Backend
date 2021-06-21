@@ -74,6 +74,7 @@ public class LobbyController {
 
             Lobby lobby = lobbyService.joinLobby(LobbyStorage.getInstance().getPlayerObjById(valueMap.get("playerId")), valueMap.get("lobbyCode"));
 
+
             return ResponseEntity.ok().body(lobby);
 
         }catch(JsonProcessingException ex){
@@ -88,18 +89,17 @@ public class LobbyController {
     public ResponseEntity changeGameSettings(@RequestBody String configuration){
         try {
             Map<String, String> valueMap = new ObjectMapper().readValue(configuration, LinkedHashMap.class);
+            System.out.println(valueMap.get("numberOfRounds"));
             Lobby lobby = lobbyService.configureGameSettings(valueMap.get("playerId"),
                                                              valueMap.get("lobbyCode"),
                                                              Integer.parseInt(valueMap.get("numberOfRounds")),
-                                                             Arrays.asList(valueMap.get("categories").split(";")),
-                                                             Arrays.asList(valueMap.get("excludedLetters").split(";")));
+                                                             Arrays.asList(valueMap.get("categories").split("\\,")),
+                                                             Arrays.asList(valueMap.get("excludedLetters").split("\\,")));
             if(lobby != null){
                 return ResponseEntity.ok().body(lobby);
             }else{
                 return ResponseEntity.badRequest().body("Invalid User - only Lobby Leader");
             }
-
-
         } catch (JsonProcessingException e) {
             return ResponseEntity.badRequest().body("An Error occurred - cannot apply changes");
         } catch (NullPointerException e){
@@ -108,20 +108,5 @@ public class LobbyController {
 
     }
 
-    @PostMapping("/startGame")
-    public ResponseEntity startGame(@RequestBody String gameData){
-        try {
-            Map<String, String> valueMap = new ObjectMapper().readValue(gameData, LinkedHashMap.class);
-            if(lobbyService.startGame(valueMap.get("playerId"), valueMap.get("lobbyCode"))){
-                return ResponseEntity.ok().body(true);
-            }else{
-                return ResponseEntity.badRequest().body(false);
-            }
 
-
-        } catch (JsonProcessingException e) {
-            return ResponseEntity.badRequest().body("False GameData");
-        }
-
-    }
 }
