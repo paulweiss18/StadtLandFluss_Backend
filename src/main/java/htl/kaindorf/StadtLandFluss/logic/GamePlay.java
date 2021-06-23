@@ -1,5 +1,6 @@
 package htl.kaindorf.StadtLandFluss.logic;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import htl.kaindorf.StadtLandFluss.pojos.GameConfiguration;
 import htl.kaindorf.StadtLandFluss.pojos.Lobby;
 import htl.kaindorf.StadtLandFluss.pojos.Round;
@@ -12,10 +13,16 @@ import java.util.*;
 @Data
 public class GamePlay {
     private List<Round> rounds;
-    private int currentRounds;
+    private int currentRound;
+    private String currentLetter;
+
+    @JsonIgnore
     private Lobby lobby;
+    @JsonIgnore
     List<String> letters = new ArrayList<>();
+    @JsonIgnore
     Random random = new Random();
+    @JsonIgnore
     SocketHandler socketHandler;
 
 
@@ -24,7 +31,7 @@ public class GamePlay {
         this.lobby = lobby;
         this.socketHandler = socketHandler;
 
-        currentRounds = -1;
+        currentRound = -1;
 
         for(int i = 65; i <= 90; i++){
             char c = (char) i;
@@ -37,16 +44,17 @@ public class GamePlay {
 
 
     public void newRound(){
-        System.out.println("new round");
-        currentRounds++;
+        currentRound++;
 
-        int index = random.nextInt(letters.size());
+        int index = random.nextInt(letters.size()-1);
         letters.remove(index);
 
         Round round = new Round(letters.get(index), null);
+        currentLetter = letters.get(index);
+        System.out.println(currentLetter);
 
         //WebSocket start new Round
-        socketHandler.startGame(lobby.getLobbyCode(), round);
+        socketHandler.startGame(lobby.getLobbyCode(), this);
     }
 
 

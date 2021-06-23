@@ -1,6 +1,7 @@
 package htl.kaindorf.StadtLandFluss.websockets;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import htl.kaindorf.StadtLandFluss.logic.GamePlay;
 import htl.kaindorf.StadtLandFluss.pojos.Lobby;
 import htl.kaindorf.StadtLandFluss.pojos.Player;
 import htl.kaindorf.StadtLandFluss.pojos.Round;
@@ -66,11 +67,10 @@ public class SocketHandler extends TextWebSocketHandler {
         }
     }
 
-    public void startGame(String lobbyCode, Round round){
+    public void startGame(String lobbyCode, GamePlay gamePlay){
         for(Player player : lobbyStorage.getLobbies().get(lobbyCode).getPlayers()){
             try {
-                System.out.println("start game Message");
-                player.getSession().sendMessage(new TextMessage(mapper.writeValueAsString(new Message("startGame", round))));
+                player.getSession().sendMessage(new TextMessage(mapper.writeValueAsString(new Message("startGame", gamePlay))));
             } catch (IOException e) {
                 e.printStackTrace();
             }catch (NullPointerException e){
@@ -78,5 +78,7 @@ public class SocketHandler extends TextWebSocketHandler {
             }
         }
     }
+
+
 
 }
