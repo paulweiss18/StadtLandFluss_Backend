@@ -3,6 +3,7 @@ package htl.kaindorf.StadtLandFluss.logic;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import htl.kaindorf.StadtLandFluss.pojos.GameConfiguration;
 import htl.kaindorf.StadtLandFluss.pojos.Lobby;
+import htl.kaindorf.StadtLandFluss.pojos.Player;
 import htl.kaindorf.StadtLandFluss.pojos.Round;
 import htl.kaindorf.StadtLandFluss.websockets.SocketHandler;
 import lombok.Data;
@@ -12,7 +13,7 @@ import java.util.*;
 
 @Data
 public class GamePlay {
-    private List<Round> rounds;
+    private List<Round> rounds = new ArrayList<>();
     private int currentRound;
     private String currentLetter;
 
@@ -49,9 +50,10 @@ public class GamePlay {
         int index = random.nextInt(letters.size()-1);
         letters.remove(index);
 
-        Round round = new Round(letters.get(index), null);
+        Round round = new Round(letters.get(index), new HashMap<Player, List<String>>());
         currentLetter = letters.get(index);
-        System.out.println(currentLetter);
+        System.out.println(round);
+        rounds.add(round);
 
         //WebSocket start new Round
         socketHandler.startGame(lobby.getLobbyCode(), this);

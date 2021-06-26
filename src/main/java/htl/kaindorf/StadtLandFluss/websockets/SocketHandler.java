@@ -79,6 +79,18 @@ public class SocketHandler extends TextWebSocketHandler {
         }
     }
 
+    public void finishRound(Lobby lobby){
+        for(Player player : lobby.getPlayers()){
+            try {
+                player.getSession().sendMessage(new TextMessage(mapper.writeValueAsString(new Message("finishRound", ""))));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }catch (NullPointerException e){
+                e.printStackTrace();
+            }
+        }
+    }
+
 
 
 }
