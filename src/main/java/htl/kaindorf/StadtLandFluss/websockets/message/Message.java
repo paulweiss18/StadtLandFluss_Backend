@@ -5,6 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.web.socket.WebSocketMessage;
 
+/**
+ * Custom Message which is send by WebSockets
+ */
 @Data
 @AllArgsConstructor
 public class Message{

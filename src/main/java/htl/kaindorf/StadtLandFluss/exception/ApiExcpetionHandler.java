@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
+/**
+ * Custo Exception Handling for Players Joining a Lobby
+ */
 @ControllerAdvice
 public class ApiExcpetionHandler {
 

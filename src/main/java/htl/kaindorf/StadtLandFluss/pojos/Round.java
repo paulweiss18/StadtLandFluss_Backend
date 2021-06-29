@@ -11,6 +11,5 @@ import java.util.List;
 @AllArgsConstructor
 public class Round {
     String letter;
-    @JsonIgnore
-    HashMap<Player, List<String>> answers;
+    HashMap<String, List<String>> answers;
 }

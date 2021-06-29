@@ -17,7 +17,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 
-
+/**
+ * Class LobbyController - Controller responsible for any Requests for Lobby changes
+ */
 @RestController
 @RequestMapping("/lobby")
 @CrossOrigin(origins = "*",methods = {RequestMethod.DELETE, RequestMethod.HEAD, RequestMethod.GET, RequestMethod.OPTIONS, RequestMethod.POST, RequestMethod.PUT})
@@ -25,6 +27,13 @@ public class LobbyController {
 
     private LobbyService lobbyService = new LobbyService();
 
+
+    /**
+     * Method to create a Player Object - only possible to play when a Player Object has been created
+     * @Endpoint /createPlayer
+     * @param name Username of Player
+     * @return ResponseEntity with Player Object
+     */
     @PostMapping("/createPlayer")
     public ResponseEntity createPlayer(@RequestBody String name) {
         try {
@@ -40,6 +49,12 @@ public class LobbyController {
 
     }
 
+    /**
+     * Method to get the Lobby Object by the lobbycode
+     * @Endpoint /getLobby
+     * @param code LobbyCode of Lobby
+     * @return ResponseEntity with Lobby Object
+     */
     @PostMapping("/getLobby")
     public ResponseEntity getLobbyWithCode(@RequestBody String code){
 
@@ -53,6 +68,12 @@ public class LobbyController {
 
     }
 
+    /**
+     * Method to create a Lobby
+     * @Endpoint /createLobby
+     * @param playerId PlayerId is used to identify the LobbyLeader
+     * @return ResponseEntity with created Lobby Object
+     */
     @PostMapping("/createLobby")
     public ResponseEntity createdLobby(@RequestBody String playerId){
         try {
@@ -67,6 +88,13 @@ public class LobbyController {
     }
 
 
+    /**
+     * Method to join a Lobby
+     * @Endpoint /joinLobby
+     * @param joinRequest PlayerId and LobbyCode
+     * @return ResponseEntity with created Lobby Object
+     * @Exception is returned when Lobby isn't available or Game has already started
+     */
     @PostMapping("/joinLobby")
     public ResponseEntity joinLobby(@RequestBody String joinRequest){
         try{
@@ -84,7 +112,12 @@ public class LobbyController {
         }
     }
 
-
+    /**
+     * Method to configure the GameSettings of a Lobby
+     * @Endpoint /setConfiguration
+     * @param configuration NumberOfRounds, ExcludedLetters, Categories as String
+     * @return ResponseEntity with created Lobby Object
+     */
     @PostMapping("/setConfiguration")
     public ResponseEntity changeGameSettings(@RequestBody String configuration){
         try {

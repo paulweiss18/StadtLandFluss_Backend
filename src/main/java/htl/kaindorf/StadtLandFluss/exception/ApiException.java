@@ -7,6 +7,9 @@ import java.net.http.HttpRequest;
 import java.time.ZonedDateTime;
 
 @Data
+/**
+ * Custom Exception for Players Joining a Lobby
+ */
 public class ApiException {
 
     private final String message;

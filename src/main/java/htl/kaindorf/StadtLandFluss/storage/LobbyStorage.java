@@ -8,6 +8,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Lobby Storage Class which stores all Lobbies and Players - Singleton
+ */
 public class LobbyStorage {
 
     private static Map<String, Lobby> lobbies;
@@ -38,6 +41,11 @@ public class LobbyStorage {
         return players;
     }
 
+    /**
+     * method to get the Player Object with the id
+     * @param id of Player
+     * @return Player Object with the Player Id
+     */
     public Player getPlayerObjById(String id){
         for(Player player : players){
             if(player.getUserid().equals(id)){
@@ -47,6 +55,10 @@ public class LobbyStorage {
         return null;
     }
 
+    /**
+     * removes player of Lobby
+     * @param playerId of Player
+     */
     public void removePlayerFromLobby(String playerId){
         Lobby lobby = null;
 
@@ -63,6 +75,11 @@ public class LobbyStorage {
         }
     }
 
+    /**
+     * returns Lobby of a single Player
+     * @param playerId of Player
+     * @return Lobby Object
+     */
     public Lobby getLobbyFromPlayer(String playerId){
         for(String lobbyCode : lobbies.keySet()){
             for(Player player : lobbies.get(lobbyCode).getPlayers()){

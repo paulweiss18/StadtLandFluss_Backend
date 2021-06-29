@@ -14,6 +14,8 @@ import javax.websocket.Session;
 public class Player {
     private String userid;
     private String username;
+    private int score;
     @JsonIgnore
     private WebSocketSession session;
+
 }

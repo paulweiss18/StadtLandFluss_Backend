@@ -1,5 +1,9 @@
 package htl.kaindorf.StadtLandFluss.exception;
 
+
+/**
+ * Custo Exception Handling for Players Joining a Lobby
+ */
 public class LobbyJoinException extends RuntimeException{
     private String message;
 
