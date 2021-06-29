@@ -144,6 +144,10 @@ public class SocketHandler extends TextWebSocketHandler {
         }
     }
 
+    /**
+     * Informs Players about the new Round
+     * @param lobby
+     */
     public void nextRound(Lobby lobby){
         for(Player player : lobby.getPlayers()){
             try {
@@ -156,6 +160,10 @@ public class SocketHandler extends TextWebSocketHandler {
         }
     }
 
+    /**
+     * Informs Players that the Game has finished
+     * @param lobby
+     */
     public void finishGame(Lobby lobby){
         for(Player player : lobby.getPlayers()){
             try {
@@ -167,7 +175,5 @@ public class SocketHandler extends TextWebSocketHandler {
             }
         }
     }
-
-
 
 }
